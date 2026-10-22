@@ -1,0 +1,53 @@
+# Повний стек: PostgreSQL + Python/FastAPI (FIS, AI) + Node/Express (API) + React (nginx)
+# Запуск:  cp .env.example .env  &&  docker compose up --build   →  http://localhost:8080
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: soil_monitoring
+      POSTGRES_USER: ${POSTGRES_USER:-soil}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-soil_password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Виконуються за алфавітом лише при першій ініціалізації тому pgdata
+      - ./db/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./db/02_methods_and_criteria.sql:/docker-entrypoint-initdb.d/02_methods_and_criteria.sql:ro
+      - ./db/05_app_extensions.sql:/docker-entrypoint-initdb.d/05_app_extensions.sql:ro
+      - ./db/06_lviv_real_data.sql:/docker-entrypoint-initdb.d/06_lviv_real_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-soil} -d soil_monitoring"]
+      interval: 5s
+      retries: 20
+    ports: ["5432:5432"]
+
+  fis:
+    build: ./intelligent
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      STRATEGY_FALLBACK: ${STRATEGY_FALLBACK:-off}
+    expose: ["8000"]
+
+  server:
+    build: ./server
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-soil}:${POSTGRES_PASSWORD:-soil_password}@db:5432/soil_monitoring
+      FIS_URL: http://fis:8000
+      JWT_SECRET: ${JWT_SECRET:-change-me-please-32-characters-min}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@soil.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+      CORS_ORIGIN: http://localhost:8080
+    depends_on:
+      db: { condition: service_healthy }
+      fis: { condition: service_started }
+    expose: ["4000"]
+
+  client:
+    build: ./client
+    depends_on: [server]
+    ports: ["8080:80"]
+
+volumes:
+  pgdata:

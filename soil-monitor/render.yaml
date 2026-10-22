@@ -1,0 +1,31 @@
+# Render Blueprint: Dashboard → New → Blueprint → обрати цей репозиторій
+databases:
+  - name: soil-db
+    databaseName: soil_monitoring
+    user: soil
+    plan: free            # безкоштовна БД Render діє 30 днів; далі — платний план або інша БД (DATABASE_URL)
+
+services:
+  - type: web
+    name: soil-monitor
+    runtime: docker
+    plan: free            # free-інстанс «засинає» після 15 хв без запитів, перший запит ~50 с
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: soil-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@soil.local
+      - key: ADMIN_PASSWORD
+        sync: false       # Render попросить ввести під час створення Blueprint
+      # AI-ключі (LLM_PROVIDER, LLM_MODEL, ANTHROPIC_API_KEY / OPENAI_API_KEY) додаються пізніше
+      # у Dashboard → Environment. Без них — резервний відбір, позначений в інтерфейсі «без LLM».
+      - key: STRATEGY_FALLBACK
+        value: deterministic
