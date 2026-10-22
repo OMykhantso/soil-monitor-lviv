@@ -29,7 +29,17 @@ function colorFor(p, mode) {
 // Підганяє вид під межу області після завантаження GeoJSON
 function FitBounds({ geo }) {
   const map = useMap();
-  useEffect(() => { if (geo) map.fitBounds(L.geoJSON(geo).getBounds(), { padding: [10, 10] }); }, [geo, map]);
+  useEffect(() => {
+    if (!geo) return undefined;
+    const bounds = L.geoJSON(geo).getBounds();
+    // Розмір контейнера може змінитися після першого рендера (картки KPI, шрифти) —
+    // перераховуємо розмір карти перед підгонкою, інакше Leaflet обирає надто дрібний масштаб
+    const fit = () => { map.invalidateSize(); map.fitBounds(bounds, { padding: [10, 10] }); };
+    map.whenReady(fit);
+    const t1 = setTimeout(fit, 250);
+    const t2 = setTimeout(fit, 1000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [geo, map]);
   return null;
 }
 
