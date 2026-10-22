@@ -22,6 +22,8 @@ import statsRoutes from './routes/stats.js';
 export const app = express();
 app.set('trust proxy', 1);
 app.use(helmet({
+  // OpenStreetMap блокує тайли без заголовка Referer (політика tile usage), тому не no-referrer
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
