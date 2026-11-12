@@ -26,7 +26,7 @@ function Shell() {
           <NavLink to="/" end>Карта</NavLink>
           <NavLink to="/analytics">Аналітика</NavLink>
           <NavLink to="/fis">Нечітка модель</NavLink>
-          <NavLink to="/methods">База знань</NavLink>
+          {can('specialist') && <NavLink to="/methods">База знань</NavLink>}
           {can('specialist') && <NavLink to="/measurements/new">Внести дані</NavLink>}
           {can('admin') && <NavLink to="/admin/users">Користувачі</NavLink>}
         </nav>
@@ -42,7 +42,7 @@ function Shell() {
           <Route path="/measurements/new" element={can('specialist') ? <MeasurementForm /> : <Navigate to="/" />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/fis" element={<FisPage />} />
-          <Route path="/methods" element={<MethodsPage />} />
+          <Route path="/methods" element={can('specialist') ? <MethodsPage /> : <Navigate to="/" />} />
           <Route path="/admin/users" element={can('admin') ? <UsersPage /> : <Navigate to="/" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

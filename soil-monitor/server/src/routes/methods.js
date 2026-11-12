@@ -18,7 +18,7 @@ export async function loadMethods({ activeOnly = false } = {}) {
   return rows;
 }
 
-r.get('/remediation-methods', asyncH(async (_req, res) => res.json(await loadMethods())));
+r.get('/remediation-methods', requireRole('specialist'), asyncH(async (_req, res) => res.json(await loadMethods())));
 
 const methodSchema = z.object({
   name: z.string().min(2).max(300), purpose: z.string().min(3), application_conditions: z.string().min(3),
