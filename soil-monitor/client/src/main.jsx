@@ -5,6 +5,9 @@ import 'leaflet/dist/leaflet.css';
 import './styles.css';
 import './lib/charts.js';
 import App from './App.jsx';
+import { applyTheme, getTheme } from './lib/theme.js';
+
+applyTheme(getTheme());
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
