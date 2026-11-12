@@ -8,10 +8,20 @@
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root{
+/* Тема: без data-theme — системна; white / dark — вибір користувача */
+@media (prefers-color-scheme:dark){:root:not([data-theme]){
   --bg:#0F1412; --panel:#161D1A; --ink:#E4ECE7; --muted:#93A39A; --line:#2A3631;
   --accent:#8EA7F2; --accent-soft:#1F2A45; --danger:#E5516A;
   --lv-low:#4CBF7C; --lv-mod:#E3B23C; --lv-high:#F07C45; --lv-crit:#E5516A; --lv-none:#6F7A74; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1412; --panel:#161D1A; --ink:#E4ECE7; --muted:#93A39A; --line:#2A3631;
+  --accent:#8EA7F2; --accent-soft:#1F2A45; --danger:#E5516A;
+  --lv-low:#4CBF7C; --lv-mod:#E3B23C; --lv-high:#F07C45; --lv-crit:#E5516A; --lv-none:#6F7A74; color-scheme:dark}
+:root[data-theme="white"]{
+  --bg:#FFFFFF; --panel:#FFFFFF; --ink:#14181A; --muted:#5A6468; --line:#DDE2E5;
+  --accent:#2B4C9B; --accent-soft:#E8EDF9; --danger:#B1203A; color-scheme:light}
+:root[data-theme="white"] nav.tabs a:hover,:root[data-theme="white"] nav.tabs a.active,
+:root[data-theme="white"] table.t tr.click:hover{background:#F3F5F6}
 *{box-sizing:border-box}
 html,body,#root{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--f-body)}

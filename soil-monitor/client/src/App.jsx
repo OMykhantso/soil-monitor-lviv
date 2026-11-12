@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { NavLink, Navigate, Route, Routes, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/auth.jsx';
 import { ROLE } from './lib/constants.js';
+import { THEMES, getTheme, saveTheme } from './lib/theme.js';
 import LoginPage from './pages/LoginPage.jsx';
 import MapPage from './pages/MapPage.jsx';
 import LocationPage from './pages/LocationPage.jsx';
@@ -13,6 +15,7 @@ import UsersPage from './pages/UsersPage.jsx';
 
 function Shell() {
   const { user, ready, logout, can } = useAuth();
+  const [theme, setTheme] = useState(getTheme);
   if (!ready) return null;
   if (!user) return <LoginPage />;
   return (
@@ -31,9 +34,12 @@ function Shell() {
           {can('admin') && <NavLink to="/admin/users">Користувачі</NavLink>}
         </nav>
         <div className="who"><span className="hide">{user.email}</span><span className="tag">{ROLE[user.role]}</span>
+          <select className="in" style={{ width: 'auto', padding: '4px 6px' }} aria-label="Тема" value={theme}
+            onChange={(e) => { saveTheme(e.target.value); setTheme(e.target.value); }}>
+            {Object.entries(THEMES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
           <button className="btn ghost small" onClick={logout}>Вийти</button></div>
       </header>
-      <main>
+      <main key={theme}>
         <Routes>
           <Route path="/" element={<MapPage />} />
           <Route path="/locations/new" element={can('specialist') ? <LocationForm /> : <Navigate to="/" />} />
